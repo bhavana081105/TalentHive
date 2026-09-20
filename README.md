@@ -2,7 +2,7 @@
 
 A full-stack platform connecting local freelancers, students, and independent workers with customers looking to book their services. Built solo, with role-based dashboards for Customers, Workers, and Admins.
 
-**Live demo:
+**Live demo:talenthive-app.netlify.app
 
 ## Features
 
