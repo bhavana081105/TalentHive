@@ -357,7 +357,7 @@ export default function App() {
   }, [isDeactivated, currentUser]);
 
   // --- Auth Session Triggers ---
-  const handleLoginSuccess = (
+  const handleLoginSuccess = async (
     user: User, 
     createdWorkerProfile?: Omit<WorkerProfile, 'id' | 'rating' | 'reviews' | 'earnings' | 'workingHours' | 'completedJobs'>
   ) => {
@@ -374,8 +374,13 @@ export default function App() {
     // Ensure they exist in the users master list state and sync with Supabase
     const userExists = users.some(u => u.email.toLowerCase() === user.email.toLowerCase());
     if (!userExists) {
-      const withNew = [...users, { ...user, deactivated: false }];
+      const newUser = { ...user, deactivated: false };
+      const withNew = [...users, newUser];
       saveUsersToStorage(withNew);
+      const savedToSupabase = await dbService.upsertUser(newUser);
+      if (!savedToSupabase) {
+        throw new Error('Account created locally, but Supabase rejected the user record. Check that the th_users table exists and permits inserts.');
+      }
     }
 
     if (user.role === 'Worker') {

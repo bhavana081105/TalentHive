@@ -3,9 +3,12 @@ import { User, WorkerProfile, Booking, SystemSettings, ReportItem, Review, DayAv
 
 // Supabase Connection Credentials (provided by user, with fallback to env variables)
 const metaEnv = (import.meta as any).env || {};
-const SUPABASE_URL = (metaEnv.VITE_SUPABASE_URL || 'https://ykidawdyrnhhubsqzyyr.supabase.co').replace(/\/rest\/v1\/?$/, '');
-const SUPABASE_ANON_KEY = metaEnv.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlraWRhd2R5cm5oaHVic3F6eXlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3ODQ5NTIsImV4cCI6MjA5NzM2MDk1Mn0.SsLby4odyhOnoZRG9HJLjBfqQrlbGOFa6dMSwou5Fjc';
+const SUPABASE_URL = (metaEnv.VITE_SUPABASE_URL || '').replace(/\/rest\/v1\/?$/, '');
+const SUPABASE_ANON_KEY = metaEnv.VITE_SUPABASE_ANON_KEY || '';
 
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  throw new Error('Missing Supabase credentials. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.');
+}
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: {
     persistSession: true,

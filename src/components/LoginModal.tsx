@@ -1,10 +1,11 @@
+import bcrypt from 'bcryptjs';
 import React, { useState } from 'react';
 import { X, LogIn, UserPlus, Shield, User, Briefcase, Sparkles, Key, Mail, CheckCircle } from 'lucide-react';
 import { UserRole, User as UserType, WorkerProfile } from '../types';
 
 interface LoginModalProps {
   onClose: () => void;
-  onLoginSuccess: (user: UserType, createdWorkerProfile?: Omit<WorkerProfile, 'id' | 'rating' | 'reviews' | 'earnings' | 'workingHours' | 'completedJobs'>) => void;
+  onLoginSuccess: (user: UserType, createdWorkerProfile?: Omit<WorkerProfile, 'id' | 'rating' | 'reviews' | 'earnings' | 'workingHours' | 'completedJobs'>) => void | Promise<void>;
   users: UserType[];
 }
 
@@ -58,7 +59,7 @@ export default function LoginModal({ onClose, onLoginSuccess, users }: LoginModa
     onClose();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
@@ -83,13 +84,14 @@ export default function LoginModal({ onClose, onLoginSuccess, users }: LoginModa
         return;
       }
 
-      // Check password!
-      const correctPassword = existingUser.password || 'password';
-      if (password !== correctPassword) {
-        setErrorMessage("❌ Incorrect password. Please check your credentials and try again.");
-        return;
-      }
-
+      
+     // Check password against stored hash
+const storedHash = existingUser.password;
+const isMatch = storedHash ? await bcrypt.compare(password, storedHash) : false;
+if (!isMatch) {
+  setErrorMessage("❌ Incorrect password. Please check your credentials and try again.");
+  return;
+}
       // Found the account! Perform successful login using the existing profile details
       onLoginSuccess(existingUser);
       onClose();
@@ -119,7 +121,7 @@ export default function LoginModal({ onClose, onLoginSuccess, users }: LoginModa
         name: name.trim(),
         email: email.trim(),
         role,
-        password: password, // Store password so it can be verified on future logins
+        password: await bcrypt.hash(password, 10), // Store hashed password, never plaintext
         avatar: role === 'Worker' 
           ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150' 
           : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=150',
@@ -155,10 +157,20 @@ export default function LoginModal({ onClose, onLoginSuccess, users }: LoginModa
           }
         };
 
-        onLoginSuccess(userPayload, workerDetails);
+        try {
+          await onLoginSuccess(userPayload, workerDetails);
+        } catch (error) {
+          setErrorMessage(error instanceof Error ? error.message : 'Could not save your account to Supabase.');
+          return;
+        }
       } else {
         // Standard customer or administrator sign up
-        onLoginSuccess(userPayload);
+        try {
+          await onLoginSuccess(userPayload);
+        } catch (error) {
+          setErrorMessage(error instanceof Error ? error.message : 'Could not save your account to Supabase.');
+          return;
+        }
       }
 
       onClose();
