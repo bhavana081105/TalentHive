@@ -18,7 +18,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 // SQL schema scripts helper for copy-pasting into Supabase SQL editor
 export const SCHEMA_SQL_INSTRUCTIONS = `-- Talent Hive Database Schema Setup
--- Paste these commands into your Supabase project's SQL Editor (https://supabase.com/dashboard/project/ykidawdyrnhhubsqzyyr/sql/new)
+-- Paste these commands into your Supabase project's SQL Editor 
 
 CREATE TABLE IF NOT EXISTS th_users (
   id TEXT PRIMARY KEY,
