@@ -214,8 +214,7 @@ if (!isMatch) {
           <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center mb-2.5 font-mono">
             Who are you today?
           </label>
-          <div className="grid grid-cols-3 p-1 bg-slate-150 rounded-xl border border-slate-205 gap-1">
-            <button
+              <div className={`grid ${isSignUp ? 'grid-cols-2' : 'grid-cols-3'} p-1 bg-slate-150 rounded-xl border border-slate-205 gap-1`}>            <button
               type="button"
               onClick={() => { setRole('Customer'); setErrorMessage(''); }}
               className={`py-2 px-1 text-[11px] font-bold rounded-lg flex flex-col sm:flex-row items-center justify-center gap-1 transition-all outline-none cursor-pointer ${
@@ -239,6 +238,7 @@ if (!isMatch) {
               <Briefcase className="w-3.5 h-3.5" />
               <span>Worker</span>
             </button>
+           {!isSignUp && (
             <button
               type="button"
               onClick={() => { setRole('Admin'); setErrorMessage(''); }}
@@ -251,6 +251,7 @@ if (!isMatch) {
               <Shield className="w-3.5 h-3.5" />
               <span>Admin</span>
             </button>
+      )}
           </div>
         </div>
 
@@ -411,9 +412,13 @@ if (!isMatch) {
           <button
             type="button"
             onClick={() => {
-              setIsSignUp(!isSignUp);
-              setErrorMessage('');
-            }}
+  const switchingToSignUp = !isSignUp;
+  setIsSignUp(switchingToSignUp);
+  setErrorMessage('');
+  if (switchingToSignUp && role === 'Admin') {
+    setRole('Customer');
+  }
+}}
             className="text-blue-600 font-bold hover:underline bg-transparent"
           >
             {isSignUp ? 'Sign In' : 'Sign Up / Onboard now'}
